@@ -20,7 +20,7 @@ display_prime:
         mov ecx, prime_msg
         mov edx, 16
         int 0x80
-        jmp exit
+		ret
 
 display_not_prime:
         mov eax, 4
@@ -28,13 +28,15 @@ display_not_prime:
         mov ecx, not_prime_msg
         mov edx, 20
         int 0x80
-        jmp exit
+		ret
 
 call_display_prime:
         call display_prime
+		jmp exit
 
 call_display_not_prime:
         call display_not_prime
+		jmp exit
 
 change_answer:
 	mov byte [answer], 0
@@ -45,7 +47,10 @@ _start:
         mov ebx,2
         mov al, [number]
         movzx eax, al
-	mov ecx, eax
+		mov ecx, eax
+check_loop:
+    	cmp ebx, ecx            ; is divisor >= number ? 
+    	jge done_loop           ; if divisor >= number, we are done 
 prime_loop:
         mov eax, ecx
         xor edx,edx
@@ -54,10 +59,9 @@ prime_loop:
         je change_answer        ; if the remainder is 0, then the number is not prime, display that
 continue:
         inc ebx                 ; incrementing the divisor
+		jmp check_loop          ; go back and test loop condition again
 
-        cmp ebx,ecx             ; if the divisor is still less than the number we're testing
-        jl prime_loop           ; if the divisor is still less than we start the loop again
-
+done_loop:
         cmp byte [answer], 1
         je call_display_prime
         cmp byte [answer], 0
